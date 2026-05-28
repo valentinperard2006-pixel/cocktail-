@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ce soir ?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Tenor+Sans&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f5ede0;
+    --blush: #e8c4a0;
+    --terracotta: #c4703a;
+    --deep: #2b1a0e;
+    --gold: #d4a853;
+    --smoke: #8b7355;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--deep);
+    color: var(--cream);
+    font-family: 'Tenor Sans', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: .5;
+  }
+
+  /* ── PAGES ── */
+  .page {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity .7s ease, transform .7s ease;
+    padding: 2rem;
+  }
+  .page.hidden { opacity: 0; pointer-events: none; transform: translateY(30px); }
+
+  /* ─── BACKGROUND DECO ─── */
+  .bg-circle {
+    position: fixed; border-radius: 50%;
+    pointer-events: none; z-index: 0;
+  }
+  .bc1 { width: 600px; height: 600px; background: radial-gradient(circle, #c4703a22 0%, transparent 70%); top: -200px; right: -200px; }
+  .bc2 { width: 400px; height: 400px; background: radial-gradient(circle, #d4a85318 0%, transparent 70%); bottom: -150px; left: -100px; }
+
+  /* ─── PAGE 1 : QUESTION ─── */
+  #p1 { gap: 3rem; }
+
+  .tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(.75rem, 2vw, .9rem);
+    letter-spacing: .25em;
+    color: var(--gold);
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+    opacity: 0; animation: fadeUp .8s .2s forwards;
+  }
+
+  .big-question {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 8vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    text-align: center;
+    position: relative; z-index: 1;
+    opacity: 0; animation: fadeUp .9s .4s forwards;
+  }
+  .big-question em {
+    font-style: italic; color: var(--blush);
+  }
+
+  .btns {
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+    position: relative; z-index: 1;
+    opacity: 0; animation: fadeUp .9s .7s forwards;
+  }
+
+  .btn-oui {
+    padding: .85rem 2.5rem;
+    background: var(--terracotta);
+    color: var(--cream);
+    border: none; border-radius: 2px;
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 1rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 24px #c4703a44;
+  }
+  .btn-oui:hover { background: #d4804a; transform: translateY(-2px); box-shadow: 0 8px 30px #c4703a55; }
+  .btn-oui:active { transform: translateY(0); }
+
+  .btn-non {
+    padding: .85rem 2.5rem;
+    background: transparent;
+    color: var(--smoke);
+    border: 1px solid #8b735566;
+    border-radius: 2px;
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 1rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color .2s, border-color .2s;
+    position: absolute; /* for JS movement */
+  }
+  .btn-non:hover { color: var(--cream); border-color: var(--smoke); }
+
+  /* ─── PAGE 2 : COCKTAILS ─── */
+  #p2 { gap: 2.5rem; overflow-y: auto; justify-content: flex-start; padding-top: 4rem; }
+
+  .p2-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    font-weight: 300; text-align: center;
+    position: relative; z-index: 1;
+  }
+  .p2-title em { font-style: italic; color: var(--gold); }
+
+  .cocktails-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+    width: 100%; max-width: 860px;
+    position: relative; z-index: 1;
+  }
+
+  .cocktail-card {
+    border: 1px solid #ffffff12;
+    border-radius: 4px;
+    padding: 1.6rem 1.2rem;
+    cursor: pointer;
+    transition: border-color .25s, background .25s, transform .2s;
+    text-align: center;
+    background: #ffffff06;
+    display: flex; flex-direction: column; gap: .6rem; align-items: center;
+  }
+  .cocktail-card:hover { border-color: var(--gold); background: #d4a85310; transform: translateY(-3px); }
+  .cocktail-card.selected { border-color: var(--terracotta); background: #c4703a18; }
+
+  .cocktail-emoji { font-size: 2.4rem; }
+  .cocktail-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem; font-weight: 400;
+    color: var(--cream);
+  }
+  .cocktail-desc {
+    font-size: .78rem;
+    color: var(--smoke);
+    line-height: 1.5;
+    letter-spacing: .03em;
+  }
+
+  .btn-confirm {
+    padding: .9rem 3rem;
+    background: var(--terracotta);
+    color: var(--cream);
+    border: none; border-radius: 2px;
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 1rem; letter-spacing: .15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0; pointer-events: none;
+    transition: opacity .4s, background .2s, transform .15s, box-shadow .2s;
+    position: relative; z-index: 1;
+    box-shadow: 0 4px 24px #c4703a44;
+  }
+  .btn-confirm.visible { opacity: 1; pointer-events: all; }
+  .btn-confirm:hover { background: #d4804a; transform: translateY(-2px); }
+
+  /* ─── PAGE 3 : CONFIRMATION ─── */
+  #p3 { gap: 2rem; }
+
+  .check-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    position: relative; z-index: 1;
+    animation: popIn .5s cubic-bezier(.2,1.4,.4,1) both;
+  }
+
+  .confirm-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.8rem, 5vw, 3.2rem);
+    font-weight: 300; text-align: center;
+    position: relative; z-index: 1;
+    animation: fadeUp .7s .2s both;
+  }
+  .confirm-title em { font-style: italic; color: var(--blush); }
+
+  .confirm-chosen {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    font-style: italic;
+    color: var(--gold);
+    text-align: center;
+    position: relative; z-index: 1;
+    animation: fadeUp .7s .35s both;
+  }
+
+  .confirm-msg {
+    font-size: .88rem;
+    color: var(--smoke);
+    letter-spacing: .08em;
+    text-align: center;
+    max-width: 380px;
+    line-height: 1.9;
+    position: relative; z-index: 1;
+    animation: fadeUp .7s .5s both;
+  }
+
+  .heart { color: var(--terracotta); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.4); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-circle bc1"></div>
+<div class="bg-circle bc2"></div>
+
+<!-- PAGE 1 : QUESTION -->
+<div class="page" id="p1">
+  <p class="tag">Ce soir</p>
+  <h1 class="big-question">Tu veux boire<br><em>un cocktail ?</em></h1>
+  <div class="btns" id="btns-wrapper">
+    <button class="btn-oui" id="btn-oui">Oui, avec plaisir ✨</button>
+    <button class="btn-non" id="btn-non">Non merci</button>
+  </div>
+</div>
+
+<!-- PAGE 2 : CHOIX -->
+<div class="page hidden" id="p2">
+  <h2 class="p2-title">Qu'est-ce qui te <em>tente</em> ?</h2>
+  <div class="cocktails-grid" id="cocktails-grid"></div>
+  <button class="btn-confirm" id="btn-confirm">C'est parti !</button>
+</div>
+
+<!-- PAGE 3 : CONFIRMATION -->
+<div class="page hidden" id="p3">
+  <div class="check-circle">🍹</div>
+  <h2 class="confirm-title">Parfait,<br><em>c'est noté !</em></h2>
+  <p class="confirm-chosen" id="confirm-chosen"></p>
+  <p class="confirm-msg">Je vais chercher tout ce qu'il faut ce soir.<br>Ce cocktail sera fait rien que pour toi <span class="heart">♥</span></p>
+</div>
+
+<script>
+  const cocktails = [
+    { emoji:'🍊', name:'Aperol Spritz',   desc:'Aperol · Prosecco · Orange · Soda' },
+    { emoji:'🍋', name:'Mojito',          desc:'Rhum blanc · Citron vert · Menthe · Sucre de canne' },
+    { emoji:'🍑', name:'Sex on the Beach',desc:'Vodka · Peach Schnapps · Jus de pêche · Grenadine' },
+    { emoji:'🌹', name:'Cosmopolitan',    desc:'Vodka · Triple sec · Jus de cranberry · Citron vert' },
+    { emoji:'🥥', name:'Piña Colada',     desc:'Rhum · Lait de coco · Jus d\'ananas' },
+    { emoji:'🍹', name:'Daiquiri Fraise', desc:'Rhum · Fraises · Citron vert · Sucre' },
+    { emoji:'🍸', name:'Margarita',       desc:'Tequila · Triple sec · Citron vert · Sel' },
+    { emoji:'💜', name:'Violet Lemonade', desc:'Vodka · Liqueur de violette · Limonade · Citron' },
+  ];
+
+  // Build grid
+  const grid = document.getElementById('cocktails-grid');
+  let selectedCard = null;
+  let selectedName = '';
+
+  cocktails.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'cocktail-card';
+    card.innerHTML = `<div class="cocktail-emoji">${c.emoji}</div>
+      <div class="cocktail-name">${c.name}</div>
+      <div class="cocktail-desc">${c.desc}</div>`;
+    card.addEventListener('click', () => {
+      if (selectedCard) selectedCard.classList.remove('selected');
+      card.classList.add('selected');
+      selectedCard = card;
+      selectedName = c.name;
+      document.getElementById('btn-confirm').classList.add('visible');
+    });
+    grid.appendChild(card);
+  });
+
+  // OUI
+  document.getElementById('btn-oui').addEventListener('click', () => {
+    go('p1', 'p2');
+  });
+
+  // NON — button runs away
+  const btnNon = document.getElementById('btn-non');
+  let escaped = false;
+  btnNon.addEventListener('mouseenter', () => { moveNon(); });
+  btnNon.addEventListener('touchstart', (e) => { e.preventDefault(); moveNon(); });
+
+  function moveNon() {
+    if (escaped) return;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bw = btnNon.offsetWidth, bh = btnNon.offsetHeight;
+    const maxX = vw - bw - 20, maxY = vh - bh - 20;
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    btnNon.style.left = x + 'px';
+    btnNon.style.top  = y + 'px';
+    btnNon.style.right = 'auto';
+    btnNon.style.bottom = 'auto';
+    btnNon.style.transform = 'none';
+  }
+
+  // Position initiale du btn-non
+  const wrapper = document.getElementById('btns-wrapper');
+  window.addEventListener('load', () => {
+    const r = btnNon.getBoundingClientRect();
+    btnNon.style.position = 'fixed';
+    btnNon.style.left = r.left + 'px';
+    btnNon.style.top  = r.top  + 'px';
+    btnNon.style.width = r.width + 'px';
+    // retirer de son parent (il est déjà fixed)
+  });
+
+  // TELEGRAM
+  const TG_TOKEN = '8625885816:AAEs4ysoOb9e5Y0XKx0k-jJUjftlgJ0ZUDQ';
+  const TG_CHAT  = '5396050627';
+
+  function notifyTelegram(cocktail) {
+    const text = `🍹 Elle a choisi : *${cocktail}* !\n\nVa chercher les ingrédients ce soir 😉`;
+    fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT, text, parse_mode: 'Markdown' })
+    }).catch(() => {}); // silencieux si erreur réseau
+  }
+
+  // CONFIRM
+  document.getElementById('btn-confirm').addEventListener('click', () => {
+    document.getElementById('confirm-chosen').textContent = `Tu as choisi : ${selectedName}`;
+    notifyTelegram(selectedName);
+    go('p2', 'p3');
+  });
+
+  function go(from, to) {
+    document.getElementById(from).classList.add('hidden');
+    document.getElementById(to).classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
